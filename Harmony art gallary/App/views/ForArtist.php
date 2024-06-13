@@ -1,100 +1,83 @@
 <?php
-    include("./storage/database.php");
-
-    if(isset($_POST['button'])){
-
-      $fullname = $_POST['Fullname'];
-      $StDate = $_POST['StDate'];
-      $MinBid = $_POST['MinBid'];
-      $ArtId = $_POST['artId'];
-      // $birthdate = $_POST['birthdate'];
-      // $gender = $_POST['gender'];
-      // $password = $_POST['password'];
-      // $country = $_POST['country'];
-      $username2 = $_SESSION['uname'];
-      $password2 = $_SESSION['password'];
-  
-      $sql = "INSERT INTO arts (full_name,StartDate,MinimumBid,ArtID)
-              VALUES ('$fullname','$StDate','$MinBid','$ArtId')";
-  
-      if(isset($_POST['button'])){
-          try{
-              mysqli_query($conn, $sql);
-              echo "<h3 style = \"color:green;\">User inserted successfully!</h3>";  
-          }
-          catch (mysqli_sql_exception){
-              echo "<h3 style = \"color:red;\">Could not insert user!</h3>";
-          }
-      }
-  
-      }
-  
-      mysqli_close($conn);
+   session_start();
 ?>
 
 <?php
     include("./storage/database.php");
 
-if(isset($_POST['button'])){
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['button'])) {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $fullname = $_POST['Fullname'];
+        $StDate = $_POST['StDate'];
+        $MinBid = $_POST['MinBid'];
+        $ArtId = $_POST['artId'];
 
-  $id2 = $_POST['id'];
-  $password2 = $_POST['password'];
-  $sql2 = "SELECT id, pass FROM users WHERE uname = '$id2' and pass = '$password2'";
-  $result = mysqli_query($conn, $sql2);
+        $username2 = $_SESSION['uname'];
+        $password2 = $_SESSION['password'];
 
-  if(isset($_POST['button'])){
-      if(mysqli_num_rows($result) > 0){
-          //while($row = mysqli_fetch_assoc($result)){
-          $row = mysqli_fetch_assoc($result);
-          // echo "<p style=\"color:white;\"> ID: " . $row["id"] . "</p>, ";
-          // echo "<p style=\"color:white;\"> Username: " . $row["uname"] . "</p>, ";
-          // echo "<p style=\"color:white;\"> Password: " . $row["pass"] . "</p>, ";
-          //}
-          // header("Location: ../Ongoing Auction page.php");
-          if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["image"])) {
-            $targetDirectory = "./uploads/"; // Specify the target directory where you want to store the uploaded images
-            $targetFile = $targetDirectory . basename($_FILES["image"]["name"]);
-            $uploadOk = true;
-            $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-        
-            // Check if the uploaded file is an image
-            $check = getimagesize($_FILES["image"]["tmp_name"]);
-            if ($check === false) {
-                echo "<b>Error: Please upload a valid image file.</b><br><br>";
-                $uploadOk = false;
-            }
-        
-            // Check if the file already exists
-            if (file_exists($targetFile)) {
-                echo "<b>Error: File already exists.</b><br><br>";
-                $uploadOk = false;
-            }
-        
-            // Allow only specific image file formats (you can modify this array as per your requirements)
-            $allowedFormats = array("jpg", "jpeg", "png", "gif");
-            if (!in_array($imageFileType, $allowedFormats)) {
-                echo "<b>Error: Only JPG, JPEG, PNG, and GIF files are allowed.</b><br><br>";
-                $uploadOk = false;
-            }
-        
-            if ($uploadOk) {
-                if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile)) {
-                    echo "<b>Image uploaded successfully.</b><br><br>";
+        $sql = "INSERT INTO arts (full_name,StartDate,MinimumBid,ArtID) VALUES ('$fullname','$StDate','$MinBid','$ArtId')";
+
+        $sql2 = "SELECT * FROM arts WHERE ArtID = '$ArtId'";
+        $result = mysqli_query($conn, $sql2);
+
+        if ($username == $username2 && $password == $password2) {
+            try {
+                if (mysqli_num_rows($result) == 0) {
+                    mysqli_query($conn, $sql);
+                    echo "<h3 style = \"color:green;\">User inserted successfully!</h3>";
                 } else {
-                    echo "<b>Error: There was a problem uploading the image.<b><br><br>";
+                    echo "<h3 style = \"color:red;\">Could not insert user!<br>May be the art name is already taken!</h3>";
                 }
+            } catch (mysqli_sql_exception $e) {
+                echo "<h3 style = \"color:red;\">Could not insert user!</h3>";
             }
-
+        } else {
+            echo "<h3 style = \"color:red;\">Invalid username or password!</h3>";
         }
-      }
-      else{
-        echo "<h3 style=\"color:red;\">No user found </h3>";
     }
-  }
 
+    // Image upload code
+    if (isset($_FILES["image"])) {
+        $targetDirectory = "./uploads/"; // Use an absolute path if needed
+        $targetFile = $targetDirectory . basename($_FILES["image"]["name"]);
+        $uploadOk = true;
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+        // Check if the uploaded file is an image
+        $check = getimagesize($_FILES["image"]["tmp_name"]);
+        if ($check === false) {
+            echo "Error: Please upload a valid image file.";
+            $uploadOk = false;
+        }
+
+        // Check if the file already exists
+        if (file_exists($targetFile)) {
+            echo "Error: File already exists.";
+            $uploadOk = false;
+        }
+
+        // Allow only specific image file formats (you can modify this array as per your requirements)
+        $allowedFormats = array("jpg", "jpeg", "png", "gif");
+        if (!in_array($imageFileType, $allowedFormats)) {
+            echo "Error: Only JPG, JPEG, PNG, and GIF files are allowed.";
+            $uploadOk = false;
+        }
+
+        if ($uploadOk) {
+            if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile)) {
+                echo "Image uploaded successfully.";
+            } else {
+                echo "Error: There was a problem uploading the image.";
+            }
+        }
+    }
   
-  }
+}
 
+mysqli_close($conn);
+  
 ?>
 
 <!DOCTYPE html>
@@ -137,32 +120,30 @@ if(isset($_POST['button'])){
 </div>
 
 <section class="uploadSect">
-  <form action="ForArtist.php" method="POST">
+  <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="POST" enctype="multipart/form-data">
   <label for="id" id="labForTB"><b>Uploading username: </b></label>
   <input id="textBox" type="text" name="username" placeholder="username"><br>
   <label for="password" id="labForTB"><b>Uploading password: </b></label>
   <input id="textBox" type="password" name="password" placeholder="password">
 
   <div class="container" id="imgBox"></div>
-  <input type="file" accept="image/*" name="image" id="file" style="display: none;" onchange="loadFile(event)">
-  <label for="file"><img src="../../resources/images/uploadicon.png" class="upload_icon" title="Upload art"></label>
-  </form>
+  <input type="file" accept="image/*" name="image" id="image" style="display: none;" onchange="loadFile(event)">
+  <label for="image"><img src="../../resources/images/uploadicon.png" class="upload_icon" title="Upload art"></label>
 
 </section>
 
   <div class="container2">
-    <form action="ForArtist.php" method="POST">
-    <label for="name"><b>Full name: </b></label>
-    <input class="textBox" id="Fullname" type="text" name="Fullname" placeholder="full name">
-    <label for="name"><b>Starting date: </b></label>
-    <input class="textBox" id="StDate" type="text" name="StDate" placeholder="starting date">
-    <label for="name"><b>Minimum bid: </b></label>
-    <input class="textBox" id="MinBid" type="text" name="MinBid" placeholder="minimum bid">
-    <label for="name"><b>Art name: </b></label>
-    <input class="textBox" id="artId" type="text" name="artId" placeholder="Art name">
+    <label for="name"><b>Full name: </b></label><br>
+    <input class="textBox" id="Fullname" type="text" name="Fullname" placeholder="full name"><br>
+    <label for="name"><b>Starting date: </b></label><br>
+    <input class="textBox" id="StDate" type="text" name="StDate" placeholder="starting date"><br>
+    <label for="name"><b>Minimum bid: </b></label><br>
+    <input class="textBox" id="MinBid" type="text" name="MinBid" placeholder="minimum bid"><br>
+    <label for="name"><b>Art name: </b></label><br>
+    <input class="textBox" id="artId" type="text" name="artId" placeholder="Art name"><br>
   
-    <input id="btn" type="submit" name="button" value="Submit" onclick="func3()"/><br>
-    <input id = "btn2" type="reset" value="Reset"/>
+    <input id="btn" type="submit" name="button" value="Submit" onclick="func3()"/><br><br>
+    <input id = "btn2" type="reset" value="Reset"/><br>
   </form>
   </div>
 
