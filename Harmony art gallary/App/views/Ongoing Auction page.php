@@ -93,6 +93,37 @@ if (isset($_POST['btn'])) {
     } catch (mysqli_sql_exception $e) {
         echo "<h3 style=\"color:red;\">An error occurred: " . $e->getMessage() . "</h3>";
     }
+
+    // Assuming you have the necessary information about the user's bid
+
+// Create the bidding cookie
+$bid_cookie = array(
+    'auction_id' => $artId,
+    'bid_amount' => $bid,
+    'user_name' => $username,
+    'timestamp' => date('Y-m-d H:i:s') // Store the current timestamp
+);
+
+// Encode the cookie data as a JSON string
+$bid_cookie_value = json_encode($bid_cookie);
+
+// Set the cookie
+$cookie_name = 'bid_info';
+$cookie_value = $bid_cookie_value;
+$cookie_expire = time() + (60 * 60 * 24 * 30); // Expire in 30 days
+setcookie($cookie_name, $cookie_value, $cookie_expire, '/');
+
+$bid_cookie_value = $_COOKIE['bid_info'];
+$bid_cookie = json_decode($bid_cookie_value, true);
+
+// Access the bid information
+$auction_id = $bid_cookie['auction_id'];
+$bid_amount = $bid_cookie['bid_amount'];
+$user_name = $bid_cookie['user_name'];
+$timestamp = $bid_cookie['timestamp'];
+
+echo "Art ID: " . $auction_id . '<br>Username: '  . $user_name . '<br>Bid: ' . $bid_amount . '<br>Timestamp: ' . $timestamp;
+
 }
 
 ?>

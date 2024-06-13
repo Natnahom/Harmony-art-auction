@@ -1,20 +1,43 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST["Name"];
-    $phone = $_POST["Phone"];
-    $email = $_POST["Email"];
-    $message = $_POST["Message"];
+// Assuming you have the $email variable set somewhere before this
+if (isset($_POST['email'])) {
+    // Configure the SMTP settings
+    $host = "smtp.gmail.com";
+    $port = 587;
+    $username = "";
+    $password = "";
 
-    $to = "natnahom12@gmail.com"; // Replace with the email you want to send the message to
-    $subject = "New Message from Your Website";
-    $body = "Name: $name\nPhone: $phone\nEmail: $email\nMessage: $message";
-    $headers = "From: $email";
+    // Create a new PHPMailer instance
+    $mail = new PHPMailer(true);
 
-    if (mail($to, $subject, $body, $headers)) {
-        echo "Message sent successfully!";
-    } else {
-        echo "Error sending message.";
+    try {
+        // Server settings
+        $mail->SMTPDebug = 0;
+        $mail->isSMTP();
+        $mail->Host = $host;
+        $mail->SMTPAuth = true;
+        $mail->Username = $username;
+        $mail->Password = $password;
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = $port;
+
+        // Recipients
+        $mail->setFrom($username, 'Sender Name');
+        $mail->addAddress($_POST['email'], 'Recipient Name');
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'Subject of the email';
+        $mail->Body = 'Body of the email';
+
+        // Send email
+        $mail->send();
+        echo 'Message has been sent';
+    } catch (Exception $e) {
+        echo 'Message could not be sent. Mailer Error: ', $mail->ErrorInfo;
     }
+} else {
+    echo 'The $email variable is not defined.';
 }
 ?>
 
