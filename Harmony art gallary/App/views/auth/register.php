@@ -10,10 +10,12 @@
     // $birthdate = $_POST['birthdate'];
     // $gender = $_POST['gender'];
     $password = $_POST['password'];
+    $passwordC = $_POST['passwordC'];
+    $hash = password_hash($password, PASSWORD_DEFAULT);
     // $country = $_POST['country'];
 
     $sql = "INSERT INTO users (name,uname,email,phone,pass)
-            VALUES ('$fullname','$username','$email','$phone','$password')";
+            VALUES ('$fullname','$username','$email','$phone','$hash')";
 
     if(isset($_POST['submit'])){
         if (!preg_match("/^[a-zA-Z-' ]*$/",$fullname)) {
@@ -21,6 +23,9 @@
         }
         else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             echo "<h3 style = \"color:white;\">Invalid email format</h3>";
+        }
+        else if ($password != $passwordC) {
+            echo "<h3 style = \"color:white;\">Passwords don't match</h3>";
         }            
         else{
             try{
@@ -80,7 +85,7 @@
         <label for="password">Password</label><br>
         <input id="pass" type="password" name="password" placeholder="Your password" required/><br>
         <label for="password">Confirm</label><br>
-        <input id="confP" type="password" name="password" placeholder="Confirm password" required/><br>
+        <input id="confP" type="password" name="passwordC" placeholder="Confirm password" required/><br>
 
         <label for="country">Country</label><br>
         <select name="country" >

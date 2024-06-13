@@ -110,9 +110,9 @@ function func4(){
    if (pass !== confP){
         alert("Passwords do not match!");
     }
-    else{
-        alert("Registered successfully!"+"\nWelcome "+userName+"!");
-    }
+    // else{
+    //     alert("Registered successfully!"+"\nWelcome "+userName+"!");
+    // }
 }
 
 

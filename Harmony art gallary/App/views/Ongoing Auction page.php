@@ -8,6 +8,7 @@ include("storage/database.php");
 if (isset($_POST['btn'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
+    $hash = password_hash($password, PASSWORD_DEFAULT);
     $artId = $_POST['artid'];
     $bid =$_POST['bid'];
 
@@ -29,7 +30,7 @@ if (isset($_POST['btn'])) {
         // $result = mysqli_query($conn, $sql);
         // if (mysqli_num_rows($result) > 0) {
           // $row = mysqli_fetch_assoc($result);
-            if ($username != $username2 || $password != $password2) {
+            if ($username != $username2 || !password_verify($password, $password2)) {
                 echo "<h3 style=\"color:red;\">Wrong username or password</h3>";
             } else {
               if (mysqli_num_rows($result) > 0) {
@@ -55,7 +56,7 @@ if (isset($_POST['btn'])) {
                     $row2 = mysqli_fetch_assoc($result2);
 
                     if($artId == $row2['artid'] && $bid > $row2['bid']) {
-                      $sql2 = "INSERT INTO clients (username, password, artid, bid) VALUES ('$username', '$password', '$artId', '$bid')";
+                      $sql2 = "INSERT INTO clients (username, password, artid, bid) VALUES ('$username', '$hash', '$artId', '$bid')";
                       if (mysqli_query($conn, $sql2)) {
                           echo "<h3 style=\"color:green;\">Bid inserted successfully!</h3>";
                       } else {
@@ -63,7 +64,7 @@ if (isset($_POST['btn'])) {
                       }
                     }
                     else if ($artId != $row2['artid']){
-                      $sql2 = "INSERT INTO clients (username, password, artid, bid) VALUES ('$username', '$password', '$artId', '$bid')";
+                      $sql2 = "INSERT INTO clients (username, password, artid, bid) VALUES ('$username', '$hash', '$artId', '$bid')";
                       if ($bid > 1500){
                         if (mysqli_query($conn, $sql2)) {
                             echo "<h3 style=\"color:green;\">Bid inserted successfully!</h3>";
@@ -147,14 +148,18 @@ if (isset($_POST['btn'])) {
           <p class="current-bid" id="art1">Current Bid:
                         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art1'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
                         }
                             ?> <!--<label id="p1">1500</label>--></p>
           <!-- <button type="submit" value="Bid" class="view-auction" id="btn1" name="btn" onclick="func2()">Bid</button> -->
@@ -172,14 +177,18 @@ if (isset($_POST['btn'])) {
           <p class="current-bid" id="art2">Current Bid: 
                         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art2'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
                         }
                             ?><!--$<label id="p2">1500</label>--></p>
           <button class="view-auction" id="btn2" name="btn2" onclick="func2()">Bid</button>
@@ -196,17 +205,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art3">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art3'";
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
                         
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                        }      
-                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>--></p>
           <button class="view-auction" id="btn3" onclick="func2()">Bid</button>
           <label class="sold"></label>
@@ -222,14 +233,18 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art4">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art4'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
                         }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
@@ -247,15 +262,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art5">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art5'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn5" onclick="func2()">Bid</button>
@@ -272,15 +291,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art6">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art6'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn6" onclick="func2()">Bid</button>
@@ -297,15 +320,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art7">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art7'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
         <button class="view-auction" id="btn7" onclick="func2()">Bid</button>
@@ -322,15 +349,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art8">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art8'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
         <button class="view-auction" id="btn8" onclick="func2()">Bid</button>
@@ -347,15 +378,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art9">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art9'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
         <button class="view-auction" id="btn9" onclick="func2()">Bid</button>
@@ -372,15 +407,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art10">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art10'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
         <button class="view-auction" id="btn10" onclick="func2()">Bid</button>
@@ -397,15 +436,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art11">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art11'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
          <button class="view-auction" id="btn11" onclick="func2()">Bid</button>
@@ -422,15 +465,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art12">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art5'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn12" onclick="func2()">Bid</button>
@@ -447,15 +494,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art13">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art13'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn13" onclick="func2()">Bid</button>
@@ -472,15 +523,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art14">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art14'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn14" onclick="func2()">Bid</button>
@@ -497,15 +552,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art15">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art15'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn15" onclick="func2()">Bid</button>
@@ -522,15 +581,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art16">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art16'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn16" onclick="func2()">Bid</button>
@@ -547,15 +610,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art17">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art17'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn17" onclick="func2()">Bid</button>
@@ -572,15 +639,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art18">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art18'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn18" onclick="func2()">Bid</button>
@@ -597,15 +668,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art19">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art19'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn19" onclick="func2()">Bid</button>
@@ -622,15 +697,19 @@ if (isset($_POST['btn'])) {
         <p class="current-bid" id="art20">Current Bid: 
         <?php
                         $sql4 = "SELECT * FROM clients WHERE artid = 'art20'";
-                        if (mysqli_query($conn, $sql4)) {
-                          $result3 = mysqli_query($conn, $sql4);
-                          if (mysqli_num_rows($result3) > 0) {
-                              $row3 = mysqli_fetch_assoc($result3);
-                              echo "<h3 style=\"color:red;\">$" . $row3['bid'] . "</h3>";
-                          } else {
-                              echo "<h3 style=\"color:red;\">$1500</h3>";
-                          }
-                      }
+                        $result3 = mysqli_query($conn, $sql4);
+                        $highest_bid = 0;
+                        
+                        if (mysqli_num_rows($result3) > 0) {
+                            while ($row3 = mysqli_fetch_assoc($result3)) {
+                                if ($row3['bid'] > $highest_bid) {
+                                    $highest_bid = $row3['bid'];
+                                }
+                            }
+                            echo "<h3 style=\"color:red;\">$" . $highest_bid . "</h3>";
+                        } else {
+                            echo "<h3 style=\"color:red;\">$1500</h3>";
+                        }
                             ?><!--$<label id="p2">1500</label>-->
         </p>
           <button class="view-auction" id="btn20" onclick="func2()">Bid</button>
@@ -646,7 +725,7 @@ if (isset($_POST['btn'])) {
 <footer class="foot">
     <a href="auth/termsAndCond.html" class="foot-bar-lists">Terms and condtions</a>
     <a href="auth/privacyPolicy.html" class="foot-bar-lists">Privacy policy</a>
-    <a href="auth/contact.html" class="foot-bar-lists">contact Us</a>
+    <a href="auth/contact.php" class="foot-bar-lists">contact Us</a>
 </footer>
 </body>
 </html>

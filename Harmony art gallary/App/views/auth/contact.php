@@ -1,3 +1,23 @@
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $_POST["Name"];
+    $phone = $_POST["Phone"];
+    $email = $_POST["Email"];
+    $message = $_POST["Message"];
+
+    $to = "natnahom12@gmail.com"; // Replace with the email you want to send the message to
+    $subject = "New Message from Your Website";
+    $body = "Name: $name\nPhone: $phone\nEmail: $email\nMessage: $message";
+    $headers = "From: $email";
+
+    if (mail($to, $subject, $body, $headers)) {
+        echo "Message sent successfully!";
+    } else {
+        echo "Error sending message.";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +39,7 @@
                     </div>
                 </div>
                 <div class="col-6">
-                    <form action="">
+                    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="POST">
                         <div class="group">
                             <input type="text" name="Name" class="control" placeholder="Enter name" required>
                         </div>

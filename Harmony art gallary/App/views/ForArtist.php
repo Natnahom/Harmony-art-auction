@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql2 = "SELECT * FROM arts WHERE ArtID = '$ArtId'";
         $result = mysqli_query($conn, $sql2);
 
-        if ($username == $username2 && $password == $password2) {
+        if ($username == $username2 && password_verify($password, $password2)) {
             try {
                 if (mysqli_num_rows($result) == 0) {
                     mysqli_query($conn, $sql);
@@ -38,6 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
+    if ($username == $username2 && password_verify($password, $password2)) {
     // Image upload code
     if (isset($_FILES["image"])) {
         $targetDirectory = "./uploads/"; // Use an absolute path if needed
@@ -73,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
     }
+}
   
 }
 
@@ -122,9 +124,9 @@ mysqli_close($conn);
 <section class="uploadSect">
   <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="POST" enctype="multipart/form-data">
   <label for="id" id="labForTB"><b>Uploading username: </b></label>
-  <input id="textBox" type="text" name="username" placeholder="username"><br>
+  <input id="textBox" type="text" name="username" placeholder="username" required><br>
   <label for="password" id="labForTB"><b>Uploading password: </b></label>
-  <input id="textBox" type="password" name="password" placeholder="password">
+  <input id="textBox" type="password" name="password" placeholder="password" required>
 
   <div class="container" id="imgBox"></div>
   <input type="file" accept="image/*" name="image" id="image" style="display: none;" onchange="loadFile(event)">
@@ -134,13 +136,13 @@ mysqli_close($conn);
 
   <div class="container2">
     <label for="name"><b>Full name: </b></label><br>
-    <input class="textBox" id="Fullname" type="text" name="Fullname" placeholder="full name"><br>
+    <input class="textBox" id="Fullname" type="text" name="Fullname" placeholder="full name" required><br>
     <label for="name"><b>Starting date: </b></label><br>
-    <input class="textBox" id="StDate" type="text" name="StDate" placeholder="starting date"><br>
+    <input class="textBox" id="StDate" type="text" name="StDate" placeholder="starting date" required><br>
     <label for="name"><b>Minimum bid: </b></label><br>
-    <input class="textBox" id="MinBid" type="text" name="MinBid" placeholder="minimum bid"><br>
+    <input class="textBox" id="MinBid" type="text" name="MinBid" placeholder="minimum bid" required><br>
     <label for="name"><b>Art name: </b></label><br>
-    <input class="textBox" id="artId" type="text" name="artId" placeholder="Art name"><br>
+    <input class="textBox" id="artId" type="text" name="artId" placeholder="Art name" required><br>
   
     <input id="btn" type="submit" name="button" value="Submit" onclick="func3()"/><br><br>
     <input id = "btn2" type="reset" value="Reset"/><br>
@@ -164,7 +166,7 @@ mysqli_close($conn);
   
       <a href="auth/termsAndCond.html" class="foot-bar-lists">Terms and condtions</a>
       <a href="auth/privacyPolicy.html" class="foot-bar-lists">Privacy policy</a>
-      <a href="auth/contact.html" class="foot-bar-lists">Contact Us
+      <a href="auth/contact.php" class="foot-bar-lists">Contact Us
   </footer>
   <h6>Copyright &copy; 2024 Harmony art auction</h6>
 

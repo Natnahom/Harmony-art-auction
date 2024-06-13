@@ -8,45 +8,30 @@
 
     $username2 = $_POST['uname'];
     $password2 = $_POST['password'];
-    $sql = "SELECT id, uname, pass FROM users WHERE uname = '$username2' and pass = '$password2'";
+    $sql = "SELECT uname, pass FROM users WHERE uname = '$username2'";
     $result = mysqli_query($conn, $sql);
 
-    if(isset($_POST['submit'])){
-        if (isset($_POST['type1'])) {
-            $selected_type = $_POST['type1'];
-            if ($selected_type === 'customer') {
-                if(mysqli_num_rows($result) > 0){
-                    //while($row = mysqli_fetch_assoc($result)){
-                    $row = mysqli_fetch_assoc($result);
-                    // echo "<p style=\"color:white;\"> ID: " . $row["id"] . "</p>, ";
-                    // echo "<p style=\"color:white;\"> Username: " . $row["uname"] . "</p>, ";
-                    // echo "<p style=\"color:white;\"> Password: " . $row["pass"] . "</p>, ";
-                    //}
-                    header("Location: ../Ongoing Auction page.php");
-        
-                }
-            } else if ($selected_type === 'artist') {
-                if(mysqli_num_rows($result) > 0){
-                    //while($row = mysqli_fetch_assoc($result)){
-                    $row = mysqli_fetch_assoc($result);
-                    // echo "<p style=\"color:white;\"> ID: " . $row["id"] . "</p>, ";
-                    // echo "<p style=\"color:white;\"> Username: " . $row["uname"] . "</p>, ";
-                    // echo "<p style=\"color:white;\"> Password: " . $row["pass"] . "</p>, ";
-                    //}
-                    header("Location: ../ForArtist.php");
-        
-                }
-            }
+    if (mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
 
-            else{
-                echo "<h3 style=\"color:red;\">No user found </h3>";
+        if (password_verify($password2, $row['pass'])) {
+            $_SESSION['uname'] = $row["uname"];
+            $_SESSION['password'] = $row["pass"];
+
+            if (isset($_POST['type1']) && $_POST['type1'] === 'customer') {
+                header("Location: ../Ongoing Auction page.php");
+            } elseif (isset($_POST['type1']) && $_POST['type1'] === 'artist') {
+                header("Location: ../ForArtist.php");
+            } else {
+                echo "<h3 style=\"color:red;\">Please select a role (customer or artist)</h3>";
             }
+        } else {
+            echo "<h3 style=\"color:red;\">Incorrect username or password</h3>";
         }
-        $_SESSION['uname'] = $row["uname"];
-        $_SESSION['password'] = $row["pass"];
-
-    }   
-}
+    } else {
+        echo "<h3 style=\"color:red;\">Incorrect username or password</h3>";
+    }
+}   
 
     mysqli_close($conn);
 ?>
