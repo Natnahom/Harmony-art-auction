@@ -20,8 +20,11 @@
 
             if (isset($_POST['type1']) && $_POST['type1'] === 'customer') {
                 header("Location: ../Ongoing Auction page.php");
-            } elseif (isset($_POST['type1']) && $_POST['type1'] === 'artist') {
+            } elseif (isset($_POST['type1']) && $_POST['type1'] === 'artist'  && !($username2 == "admin")) {
                 header("Location: ../ForArtist.php");
+            }
+            else if (isset($_POST['type1']) && $_POST['type1'] === 'artist' && $username2 == "admin") {
+                header("Location: ./admin.php");
             } else {
                 echo "<h3 style=\"color:red;\">Please select a role (customer or artist)</h3>";
             }
