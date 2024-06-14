@@ -1,44 +1,43 @@
+
 <?php
-// Assuming you have the $email variable set somewhere before this
-if (isset($_POST['email'])) {
-    // Configure the SMTP settings
-    $host = "smtp.gmail.com";
-    $port = 587;
-    $username = "";
-    $password = "";
+include ('../storage/database.php');
 
-    // Create a new PHPMailer instance
-    $mail = new PHPMailer(true);
+// Check if the form was submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get the form data
+    $name = $_POST["Name"];
+    $phone = $_POST["Phone"];
+    $email = $_POST["Email"];
+    $message = $_POST["Message"];
 
-    try {
-        // Server settings
-        $mail->SMTPDebug = 0;
-        $mail->isSMTP();
-        $mail->Host = $host;
-        $mail->SMTPAuth = true;
-        $mail->Username = $username;
-        $mail->Password = $password;
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = $port;
+    // Validate name (only letters and whitespaces)
+    if (!preg_match("/^[a-zA-Z\s]+$/", $name)) {
+        echo "<h3 style=\"color:red; padding:20px;\">Please enter a valid name (letters and whitespaces only).</h3><br>";
+    } else {
+        // Validate email
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo "<h3 style=\"color:red; padding:20px;\">Please enter a valid email address.</h3><br>";
+        } else {
+            // Prepare the SQL statement
+            $sql = "INSERT INTO emailservice (name, phone, email, message)
+                    VALUES (?, ?, ?, ?)";
 
-        // Recipients
-        $mail->setFrom($username, 'Sender Name');
-        $mail->addAddress($_POST['email'], 'Recipient Name');
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ssss", $name, $phone, $email, $message);
 
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = 'Subject of the email';
-        $mail->Body = 'Body of the email';
+            // Execute the SQL statement
+            if ($stmt->execute()) {
+                echo "<h3 style=\"color:green; padding:20px;\">Form data saved successfully.</h3>";
+            } else {
+                echo "<h3 style=\"color:red; padding:20px;\">Error saving form data: " . $stmt->error . "</h3>";
+            }
 
-        // Send email
-        $mail->send();
-        echo 'Message has been sent';
-    } catch (Exception $e) {
-        echo 'Message could not be sent. Mailer Error: ', $mail->ErrorInfo;
+            $stmt->close();
+        }
     }
-} else {
-    echo 'The $email variable is not defined.';
 }
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
